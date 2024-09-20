@@ -1,7 +1,6 @@
 import { User } from "@/@types"
 import { LocalStorage } from "@/infra"
 import axios from "axios"
-import { headers } from "next/headers"
 
 export const fecthUserData = async(token: string): Promise<User> => {
   const response = await axios.get<User>("/api/auth/me", {
