@@ -23,12 +23,13 @@ export const ManagerDashboard = () => {
 
   useEffect(() => {
     managerServices.getBarbers(page, limit).then(response => {
-      setClients(response.barbers);  // Atribui o array de barbeiros
-      setTotalClients(response.total);  // Atribui o total de barbeiros
+      setClients(response.barbers);
+      setTotalClients(response.total);
     });
   }, [page, limit]);
   
-
+  console.log(clients);
+  
   const totalPages = Math.ceil(totalClients / limit);
 
   const handleNextPage = () => {
@@ -50,7 +51,7 @@ export const ManagerDashboard = () => {
           title={`Usuários (${totalClients})`}
           description="Gerenciamento de usuários"
         />
-        <Button onClick={() => router.push(`/manager/clients/new`)}>
+        <Button onClick={() => router.push(`/dashboard/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Adicionar novo
         </Button>
       </div>

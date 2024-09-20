@@ -5,3 +5,7 @@ export type User = {
   openAccessToken: string;
   role: string;
 };
+export enum UserRole {
+  MANAGER = "MANAGER",
+  BARBER = "BARBER"
+}
