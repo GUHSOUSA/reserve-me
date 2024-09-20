@@ -28,8 +28,15 @@ export async function GET(req: Request) {
         id: true,
         name: true,
         email: true,
+        role: true,
         createdAt: true,
+        BarberShop: {
+          select: {
+            active: true
+          }
+        }
       },
+      
       skip: offset,
       take: limit
     });

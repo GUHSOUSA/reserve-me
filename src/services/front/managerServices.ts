@@ -5,7 +5,6 @@ import axios from "axios";
 
 export class ManagerService {
   constructor( private readonly localStorage: LocalStorage) {}
-
   async getBarbers(page: number, limit: number): Promise<{ barbers: ClientColumn[], total: number }> {
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
 
@@ -19,11 +18,10 @@ export class ManagerService {
       total: response.data.total,
     }));
   }
-
-  async getBarberById(id: string): Promise<User>{
+  async getBarberById(id: string): Promise<ClientColumn>{
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
 
-    return await axios.get<User>(`/api/manager/barber/${id}`, {
+    return await axios.get<ClientColumn>(`/api/manager/barber/${id}`, {
       headers: {
         Authorization: `Bearer ${openAccessToken}`
       }
@@ -42,6 +40,15 @@ export class ManagerService {
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
 
     return await axios.delete(`/api/manager/barber/${id}`, {
+      headers: {
+        Authorization: `Bearer ${openAccessToken}`
+      }
+    }).then(response => response.data)
+  }
+  async updateBarber(id: string, data: ClientFormValues): Promise<void>{
+    const { openAccessToken } = await this.localStorage.get<User>('userProfile');
+
+    return await axios.patch(`/api/manager/barber/${id}`, data, {
       headers: {
         Authorization: `Bearer ${openAccessToken}`
       }

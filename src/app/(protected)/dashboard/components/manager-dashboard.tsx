@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Heading } from "@/components/ui/heading";
@@ -11,25 +10,29 @@ import { columns } from "./columns";
 import { ClientColumn } from "@/@types";
 import { LocalStorage } from "@/infra";
 import { ManagerService } from "@/services/front/managerServices";
+import { Loader } from "@/components/loader";
 
 export const ManagerDashboard = () => {
   const [clients, setClients] = useState<ClientColumn[]>([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalClients, setTotalClients] = useState(0);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const localStorage = new LocalStorage();
   const managerServices = new ManagerService(localStorage);
 
   useEffect(() => {
+    setLoading(true); 
     managerServices.getBarbers(page, limit).then(response => {
       setClients(response.barbers);
       setTotalClients(response.total);
+      setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, [page, limit]);
-  
-  console.log(clients);
-  
+    
   const totalPages = Math.ceil(totalClients / limit);
 
   const handleNextPage = () => {
@@ -43,7 +46,13 @@ export const ManagerDashboard = () => {
       setPage(page - 1);
     }
   };
-
+  if (loading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
   return (
     <>
       <div className="flex items-center justify-between">

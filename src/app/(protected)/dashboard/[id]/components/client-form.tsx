@@ -27,11 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User, UserRole } from "@/@types";
+import { ClientColumn, User, UserRole } from "@/@types";
 import { LocalStorage } from "@/infra";
 import { ManagerService } from "@/services/front/managerServices";
-
-// Esquema de validação com Zod
 const formSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   email: z
@@ -41,7 +39,9 @@ const formSchema = z.object({
     password: z.string().min(4, "A senha deve ter pelo menos 6 caracteres"),
     role: z.nativeEnum(UserRole, {
     errorMap: () => ({ message: "Role inválida" }),
+    
   }),
+  active: z.boolean(),
   
 });
 
@@ -49,7 +49,7 @@ export type ClientFormValues = z.infer<typeof formSchema>;
 
 interface ClientFormProps {
   initialData:
-  | (User)
+  | (ClientColumn)
   | null;
 }
 
@@ -67,30 +67,36 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
   const userId = Array.isArray(params.id) ? params.id[0] : params.id;
   const localStorage = new LocalStorage()
   const managerServices = new ManagerService(localStorage);
+  
+  // Adicionando a lógica para definir valores padrão
   const defaultValues = initialData
     ? {
-      name: initialData.name || "",
-      email: initialData.email,
-      role: initialData.role as UserRole || UserRole.BARBER, // Converter 'role' de string para UserRole
-    }
+        name: initialData.name || "",
+        email: initialData.email,
+        password: initialData.password,
+        role: initialData.role as UserRole || UserRole.BARBER, // Converter 'role' de string para UserRole
+        active: initialData.barberShop?.active || false, // Pega o valor de active se existir barberShop
+      }
     : {
-      name: "",
-      email: "",
-      password: "",
-      role: UserRole.BARBER
-    };
+        name: "",
+        email: "",
+        password: "",
+        active: false,
+        role: UserRole.BARBER
+      };
 
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
-  const onSubmit = async (data: ClientFormValues) => {
-    
 
+  const onSubmit = async (data: ClientFormValues) => {
+    console.log('Form submit triggered');
     try {
       setLoading(true);
       if (initialData) {
-        await axios.patch(`/api/manager/user/${userId}`, data);
+        console.log(data)
+        await managerServices.updateBarber(userId, data)
       } else {
         await managerServices.createBarber(data);
       }
@@ -110,7 +116,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
       await managerServices.deleteBarber(userId);
       router.refresh();
       router.push(`/dashboard`);
-      toast.success("Useruario deletado");
+      toast.success("Usuário deletado");
     } catch (error: any) {
       toast.error("Something went wrong.");
     } finally {
@@ -136,7 +142,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
             size="sm"
             onClick={() => setOpen(true)}
           >
-            Delete User
+            Deletar usuario
           </Button>
         )}
       </div>
@@ -182,30 +188,29 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-            
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Senha"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={loading}
+                        placeholder="Senha"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <FormField
               control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo de usuario</FormLabel>
+                  <FormLabel>Tipo de usuário</FormLabel>
                   <Select
                     disabled={loading}
                     onValueChange={field.onChange}
@@ -218,7 +223,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-
                       <SelectItem value={UserRole.MANAGER}>Manager</SelectItem>
                       <SelectItem value={UserRole.BARBER}>Barber</SelectItem>
                     </SelectContent>
@@ -227,69 +231,34 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-            
-            {/* <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input type="number" disabled={loading} placeholder="9.99" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
 
-            {/* 
-           
-            <FormField
-              control={form.control}
-              name="isFeatured"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      // @ts-ignore
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Featured
-                    </FormLabel>
-                    <FormDescription>
-                      This product will appear on the home page
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="isArchived"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      // @ts-ignore
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Archived
-                    </FormLabel>
-                    <FormDescription>
-                      This product will not appear anywhere in the store.
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            /> */}
+            {/* Condição para exibir o campo "active" apenas se a barbearia existir */}
+            {initialData && (
+              initialData.barberShop ? (
+                <FormField
+                  control={form.control}
+                  name="active"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Barbearia Ativa</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="checkbox"
+                          disabled={loading}
+                          checked={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                <div className="col-span-3 mt-5 text-gray-500">
+                  Barbearia ainda não criada.
+                </div>
+              )
+            )}
           </div>
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}
@@ -299,3 +268,4 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
     </>
   );
 };
+
