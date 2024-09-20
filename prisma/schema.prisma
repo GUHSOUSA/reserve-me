@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  MANAGER
+  BARBER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String   @unique
+  password  String
+  role      UserRole @default(BARBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt // Corrigido
+}
+
+model BarberAvailability {
+  id       String   @id @default(uuid())
+  barberId Int
+  date     DateTime
+  timeSlot String
+  barber   Barber   @relation(fields: [barberId], references: [id], onDelete: Cascade)
+}
+
+model Haircut {
+  id           String        @id @default(uuid())
+  name         String
+  duration     Int // Tempo em minutos que o corte leva
+  barberShop   BarberShop    @relation(fields: [barberShopId], references: [id], onDelete: Cascade)
+  barberShopId String
+  appointments Appointment[]
+}
+
+model Appointment {
+  id              String     @id @default(uuid())
+  appointmentTime DateTime
+  duration        Int        @default(0)
+  clientId        String
+  client          Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  barberId        Int
+  barber          Barber     @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  barberShopId    String
+  barberShop      BarberShop @relation(fields: [barberShopId], references: [id], onDelete: Cascade)
+  haircutId       String? // Relacionamento com o corte escolhido pelo cliente
+  haircut         Haircut?   @relation(fields: [haircutId], references: [id], onDelete: SetNull)
+}
+
+model Client {
+  id           String        @id @default(uuid())
+  phoneNumber  String        @unique
+  name         String?
+  appointments Appointment[]
+
+  BarberShop BarberShop[] @relation("BarberShopClients")
+}
+
+model Barber {
+  id           Int           @id @default(autoincrement())
+  name         String?
+  email        String?
+  imageUrl     String?
+  BarberShop   BarberShop[]  @relation("BarberShopToBarber")
+  appointments Appointment[] // Relacionamento com agendamentos
+
+  BarberAvailability BarberAvailability[]
+}
+
+model BarberShop {
+  id           String        @id @default(uuid())
+  subId        Int
+  name         String?
+  userId       String        @unique
+  active       Boolean       @default(true)
+  paymentType  PaymentType?
+  clients      Client[]      @relation("BarberShopClients")
+  barbers      Barber[]      @relation("BarberShopToBarber")
+  haircut      Haircut[]
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt // Corrigido
+}
+
+enum PaymentType {
+  PIX
+  DINHEIRO
+  CARTAO_DE_CREDITO
+  CARTAO_DE_DEBITO
+}
