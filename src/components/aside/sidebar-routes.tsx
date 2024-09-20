@@ -1,7 +1,5 @@
 "use client";
-
 import { Layout, Settings } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { SidebarItem } from "./sidebar-item";
 const managerRoutes = [
   {
@@ -15,11 +13,7 @@ const managerRoutes = [
     href: "/config" ,
   },
 ]
-
-
-
 export const SidebarRoutes = () => {
-  const pathname = usePathname();
   const routes =  managerRoutes;
   return (
     <div className="flex flex-col w-full justify-between h-full ">
@@ -30,8 +24,7 @@ export const SidebarRoutes = () => {
           label={route.label}
           href={route.href}
         />
-      ))}
-      
+      ))}   
     </div>
   )
 }

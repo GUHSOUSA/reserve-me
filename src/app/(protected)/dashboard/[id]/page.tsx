@@ -36,7 +36,7 @@ const ClientPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4">
+      <div className="space-y-4">
         <ClientForm initialData={barber} />
       </div>
     </div>

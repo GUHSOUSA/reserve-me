@@ -83,7 +83,7 @@ model Barber {
 
 model BarberShop {
   id           String        @id @default(uuid())
-  subId        Int
+  subId        Int           @unique
   name         String?
   userId       String        @unique
   active       Boolean       @default(true)
