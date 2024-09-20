@@ -1,3 +1,4 @@
+"use client";
 import { User } from "@/@types"
 import { LocalStorage } from "@/infra"
 import axios from "axios"
