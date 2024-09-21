@@ -9,8 +9,8 @@ const managerRoutes = [
   },
   {
     icon: Settings,
-    label: "Config",
-    href: "/config" ,
+    label: "Barbearia",
+    href: "/barbershop" ,
   },
 ]
 export const SidebarRoutes = () => {

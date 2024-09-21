@@ -4,7 +4,7 @@ export type ClientColumn = {
   email: string;
   role: string;
   password: string;
-  barberShop?: {
+  BarberShop?: {
     active: boolean
   }
 }

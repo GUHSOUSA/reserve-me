@@ -25,7 +25,6 @@ const ClientPage = ({ params }: { params: { id: string } }) => {
     };
     fetchBarber();
   }, [params.id]);
-
   if (loading) {
     return (
       <div className="flex h-full w-full items-center justify-center">

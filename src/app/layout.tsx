@@ -4,6 +4,7 @@ import "./globals.css";
 import { UserContextProvider } from "@/context/useContext";
 import { ToastProvider } from "@/providers/toast-provider";
 import { ModalProvider } from "@/providers/modal-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,12 +33,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ToastProvider />
-        
+        <ThemeProvider
+            attribute="class" 
+            defaultTheme="system" 
+            enableSystem
+          >
         <UserContextProvider>
         <ModalProvider />
           {children}
         </UserContextProvider>
-        
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -19,7 +19,7 @@ export const columns: ColumnDef<ClientColumn>[] = [
     accessorKey: "barberShop.active", // Atividade da barbearia
     header: "Situacao",
     cell: ({ row }) => {
-      return row.original.barberShop?.active ? "Ativo" : "Inativo"
+      return row.original.BarberShop?.active ? "Ativo" : "Inativo"
     },
   },
   {

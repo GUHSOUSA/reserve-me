@@ -36,21 +36,17 @@ const formSchema = z.object({
     .string()
     .min(1, "Email é obrigatório")
     .email("Formato de email inválido"),
-    password: z.string().min(4, "A senha deve ter pelo menos 6 caracteres"),
-    role: z.nativeEnum(UserRole, {
+  password: z.string().min(4, "A senha deve ter pelo menos 6 caracteres"),
+  role: z.nativeEnum(UserRole, {
     errorMap: () => ({ message: "Role inválida" }),
-    
   }),
   active: z.boolean(),
-  
 });
 
 export type ClientFormValues = z.infer<typeof formSchema>;
 
 interface ClientFormProps {
-  initialData:
-  | (ClientColumn)
-  | null;
+  initialData: ClientColumn | null;
 }
 
 export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
@@ -65,24 +61,24 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
   const toastMessage = initialData ? "Usuário atualizado." : "Usuário criado.";
   const action = initialData ? "Salvar alterações" : "Criar";
   const userId = Array.isArray(params.id) ? params.id[0] : params.id;
-  const localStorage = new LocalStorage()
+  const localStorage = new LocalStorage();
   const managerServices = new ManagerService(localStorage);
-  
+
   // Adicionando a lógica para definir valores padrão
   const defaultValues = initialData
     ? {
         name: initialData.name || "",
         email: initialData.email,
         password: initialData.password,
-        role: initialData.role as UserRole || UserRole.BARBER, // Converter 'role' de string para UserRole
-        active: initialData.barberShop?.active || false, // Pega o valor de active se existir barberShop
+        role: (initialData.role as UserRole) || UserRole.BARBER, // Converter 'role' de string para UserRole
+        active: initialData.BarberShop?.active || false, // Pega o valor de active se existir barberShop
       }
     : {
         name: "",
         email: "",
         password: "",
         active: false,
-        role: UserRole.BARBER
+        role: UserRole.BARBER,
       };
 
   const form = useForm<ClientFormValues>({
@@ -91,12 +87,10 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
   });
 
   const onSubmit = async (data: ClientFormValues) => {
-    console.log('Form submit triggered');
     try {
       setLoading(true);
       if (initialData) {
-        console.log(data)
-        await managerServices.updateBarber(userId, data)
+        await managerServices.updateBarber(userId, data);
       } else {
         await managerServices.createBarber(data);
       }
@@ -170,7 +164,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="email"
@@ -188,23 +182,19 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Senha"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Senha</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="Senha" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="role"
@@ -233,22 +223,32 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
             />
 
             {/* Condição para exibir o campo "active" apenas se a barbearia existir */}
-            {initialData && (
-              initialData.barberShop ? (
+            {initialData &&
+              (initialData.BarberShop ? (
                 <FormField
                   control={form.control}
                   name="active"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Barbearia Ativa</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="checkbox"
-                          disabled={loading}
-                          checked={field.value}
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
+                      <FormLabel>Ativar barbearia</FormLabel>
+                      <Select
+                        disabled={loading}
+                        onValueChange={(value) =>
+                          field.onChange(value === "true")
+                        }
+                        value={field.value ? "true" : "false"}
+                        defaultValue={field.value ? "true" : "false"}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="false">Desativada</SelectItem>
+                          <SelectItem value="true">Ativada</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -257,8 +257,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
                 <div className="col-span-3 mt-5 text-gray-500">
                   Barbearia ainda não criada.
                 </div>
-              )
-            )}
+              ))}
           </div>
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}
@@ -268,4 +267,3 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
     </>
   );
 };
-

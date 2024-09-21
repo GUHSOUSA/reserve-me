@@ -1,12 +1,14 @@
 "use client";
 import { User } from "@/@types";
+import { MainNav } from "@/components/aside/main-nav";
 import { MobileSidebar } from "@/components/aside/mobile-sidebar";
 import { Sidebar } from "@/components/aside/sidebar";
 import { Loader } from "@/components/loader";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { isTokenExpired } from "@/config/axios";
 import { UserContext } from "@/context/useContext";
 import { LocalStorage } from "@/infra";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
 interface Props {
@@ -17,6 +19,7 @@ const ProtectedLayout = ({ children }: Props) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const localStorage = new LocalStorage();
   const router = useRouter();
+  const pathname = usePathname();
   
   useEffect(() => {
     const checkUser = async () => {
@@ -40,8 +43,12 @@ const ProtectedLayout = ({ children }: Props) => {
     checkUser();
   }, []);
   return isAuthenticated ? <div className="h-full">
-  <div className="pl-4 pt-4">
+  <div className="px-4 pt-4 items-center flex justify-between">
     <MobileSidebar />
+    { pathname.startsWith("/barbershop") &&
+    <MainNav className="mx-6" />
+}
+    <ThemeToggle />
   </div>
   <aside className="hidden md:flex h-full w-56 flex-col fixed inset-y-0">
     <Sidebar />
