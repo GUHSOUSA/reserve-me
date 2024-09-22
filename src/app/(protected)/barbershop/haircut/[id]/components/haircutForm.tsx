@@ -25,7 +25,7 @@ import { LocalStorage } from "@/infra";
 
 const formSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
-  duration: z.number().min(1)
+  duration: z.coerce.number().min(1)
 });
 
 export type HaircutFormValues = z.infer<typeof formSchema>;
@@ -52,7 +52,8 @@ export const HaircutForm: React.FC<HaircutFormProps> = ({ initialData }) => {
   const defaultValues = initialData
     ? {
         name: initialData.name || "",
-        duration: initialData.duration || 0,
+        duration: parseInt(String(initialData?.duration)),
+
       }
     : {
         name: "",
@@ -73,7 +74,7 @@ export const HaircutForm: React.FC<HaircutFormProps> = ({ initialData }) => {
         await barberServices.createHaircut(data);
       }
       router.refresh();
-      router.push(`/haircuts`);
+      router.push(`/barbershop/haircut`);
       toast.success(toastMessage);
     } catch (error: any) {
       toast.error("Something went wrong.");

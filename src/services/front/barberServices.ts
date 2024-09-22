@@ -66,7 +66,7 @@ export class BarberServices {
   // Função paginada para buscar tipos de corte
   async getHaircuts(barberShopId: string, page: number, limit: number): Promise<{ haircuts: Haircut[], total: number }> {
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
-    return await axios.get<{ haircuts: Haircut[], total: number }>(`/api/barber/barber-shop/${barberShopId}/haircuts`, {
+    return await axios.get<{ haircuts: Haircut[], total: number }>(`/api/barber/barber-shop/1/haircuts`, {
       params: { page, limit },
       headers: {
         Authorization: `Bearer ${openAccessToken}`

@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const barber = await db.haircut.findUnique({
       where: {
         id: params.id,
-      }
+      }, 
     });
     return NextResponse.json(barber, {status: 200});
   }catch(err: any){

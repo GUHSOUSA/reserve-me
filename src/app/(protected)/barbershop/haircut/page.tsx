@@ -59,7 +59,7 @@ const HaircutPage = () => {
     <>
       <div className="flex items-center justify-between">
         <Heading title={`Cortes de Cabelo (${totalHaircuts})`} description="Gerenciamento de cortes de cabelo" />
-        <Button onClick={() => router.push(`/barber-shop/haircut/new`)}>
+        <Button onClick={() => router.push(`/barbershop/haircut/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Adicionar novo
         </Button>
       </div>
