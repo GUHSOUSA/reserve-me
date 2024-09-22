@@ -1,129 +1,107 @@
-// import { useEffect, useState } from "react";
-// import axios from "axios";
-// import { useAuth } from "@/src/context/user-context";
-// import { parseCookies } from "nookies";
-// import {
-//   Accordion,
-//   AccordionContent,
-//   AccordionItem,
-//   AccordionTrigger,
-// } from "@/components/ui/accordion";
-// import {
-//   Card,
-//   CardContent,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
-// import { Separator } from "@/components/ui/separator";
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from "@/components/ui/table";
+import { useState, useEffect } from "react";
+import { BarberServices } from "@/services/front/barberServices";
+import { Appointment } from "@/@types";
+import { Loader } from "@/components/loader";
+import { Button } from "@/components/ui/button";
+import { LocalStorage } from "@/infra";
 
-// const BarberDashboard = () => {
-//   const [clients, setClients] = useState<any[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const { refreshToken } = useAuth();
+const AppointmentsPage = () => {
+  const [futureAppointments, setFutureAppointments] = useState<Appointment[]>([]);
+  const [pastAppointments, setPastAppointments] = useState<Appointment[]>([]);
+  const [totalFutureAppointments, setTotalFutureAppointments] = useState(0);
+  const [totalPastAppointments, setTotalPastAppointments] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const localStorage = new LocalStorage();
+  const barberServices = new BarberServices(localStorage);
 
-//   const fetchClients = async (token: string) => {
-//     setLoading(true);
-//     try {
-//       const response = await axios.get(`/api/barber/agendaments`, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
+  useEffect(() => {
+    setLoading(true);
+    barberServices.getAppointments( page, limit)
+      .then(response => {
+        setFutureAppointments(response.futureAppointments);
+        setPastAppointments(response.pastAppointments);
+        setTotalFutureAppointments(response.totalFuture);
+        setTotalPastAppointments(response.totalPast);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [page, limit]);
 
-//       setClients(response.data); // Aqui você recebe os dados dos agendamentos
-//     } catch (error: any) {
-//       if (error.response?.status === 401) {
-//         const newAccessToken = await refreshToken();
-//         if (newAccessToken) {
-//           fetchClients(newAccessToken);
-//         } else {
-//           console.log("Erro ao renovar o token");
-//         }
-//       } else {
-//         console.error("Erro ao buscar clientes:", error);
-//       }
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+  const totalFuturePages = Math.ceil(totalFutureAppointments / limit);
+  const totalPastPages = Math.ceil(totalPastAppointments / limit);
 
-//   useEffect(() => {
-//     const cookies = parseCookies();
-//     const token = cookies.authToken;
-//     if (token) {
-//       fetchClients(token);
-//     }
-//   }, []);
+  const handleNextPage = () => {
+    if (page < totalFuturePages || page < totalPastPages) {
+      setPage(page + 1);
+    }
+  };
 
-//   // Agrupando agendamentos por data (exemplo simples)
-//   const groupedAppointments = clients.reduce((group: any, appointment: any) => {
-//     const date = new Date(appointment.appointmentTime).toLocaleDateString("pt-BR");
-//     if (!group[date]) {
-//       group[date] = [];
-//     }
-//     group[date].push(appointment);
-//     return group;
-//   }, {});
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
 
-//   return (
-//     <>
-//       {loading && <p>Carregando...</p>}
-//       <Accordion className="mb-4" type="single" collapsible>
-//         {Object.keys(groupedAppointments).map((date) => (
-//           <AccordionItem className="border-b-0" value={date} key={date}>
-//             <AccordionTrigger className="bg-blue-400/15  px-5 rounded-md">
-//               {date}
-//             </AccordionTrigger>
-//             <AccordionContent className="my-5">
-//               <Card className="">
-//                 <CardHeader className="py-2 pl-5">
-//                   <CardTitle className="text-lg">Agendamentos de {date}</CardTitle>
-//                 </CardHeader>
-//                 <Separator className="h-1 bg-slate-300" />
-//                 <CardContent>
-//                   <Table>
-//                     <TableHeader className="hover:bg-none">
-//                       <TableRow className="border-b-transparent">
-//                         <TableHead className="font-bold text-black px-0">Nome</TableHead>
-//                         <TableHead className="font-bold text-black px-0">Horário</TableHead>
-//                         <TableHead className="font-bold text-black px-0">Tipo de corte</TableHead>
-//                       </TableRow>
-//                     </TableHeader>
-//                     <TableBody className="">
-//                       {groupedAppointments[date].map((appointment: any) => (
-//                         <TableRow key={appointment.id}>
-//                           <TableCell className="h-1 py-3 px-0">
-//                             {appointment.client.name}
-//                           </TableCell>
-//                           <TableCell className="h-1 py-2 px-0">
-//                             {new Date(appointment.appointmentTime).toLocaleTimeString("pt-BR", {
-//                               hour: "2-digit",
-//                               minute: "2-digit",
-//                             })}
-//                           </TableCell>
-//                           <TableCell className="h-1 py-1.5 px-0">
-//                             {appointment.haircutId ? "Corte de cabelo" : "Sem corte definido"}
-//                           </TableCell>
-//                         </TableRow>
-//                       ))}
-//                     </TableBody>
-//                   </Table>
-//                 </CardContent>
-//               </Card>
-//             </AccordionContent>
-//           </AccordionItem>
-//         ))}
-//       </Accordion>
-//     </>
-//   );
-// };
+  if (loading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
-// export default BarberDashboard;
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-semibold">Próximos Agendamentos</h1>
+      </div>
+
+      {futureAppointments.length === 0 ? (
+        <p>Nenhum agendamento futuro</p>
+      ) : (
+        <div className="space-y-4">
+          {futureAppointments.map(appointment => (
+            <div key={appointment.id} className="p-4 border rounded-md">
+              <p><strong>Barbeiro:</strong> {appointment.barber.name}</p>
+              <p><strong>Corte:</strong> {appointment.haircut?.name}</p>
+              <p><strong>Data:</strong> {new Date(appointment.appointmentTime).toLocaleString()}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-4 mt-8">
+        <h1 className="text-xl font-semibold">Agendamentos Passados</h1>
+      </div>
+
+      {pastAppointments.length === 0 ? (
+        <p>Nenhum agendamento passado</p>
+      ) : (
+        <div className="space-y-4">
+          {pastAppointments.map(appointment => (
+            <div key={appointment.id} className="p-4 border rounded-md">
+              <p><strong>Barbeiro:</strong> {appointment.barber.name}</p>
+              <p><strong>Corte:</strong> {appointment.haircut?.name}</p>
+              <p><strong>Data:</strong> {new Date(appointment.appointmentTime).toLocaleString()}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex justify-between mt-4">
+        <Button onClick={handlePreviousPage} disabled={page === 1}>
+          Anterior
+        </Button>
+        <Button onClick={handleNextPage} disabled={page >= totalFuturePages && page >= totalPastPages}>
+          Próximo
+        </Button>
+      </div>
+    </>
+  );
+};
+
+export default AppointmentsPage;

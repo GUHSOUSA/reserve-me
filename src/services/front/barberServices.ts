@@ -1,4 +1,4 @@
-import { BarberShop, Barber, Haircut, User } from "@/@types";
+import { BarberShop, Barber, Haircut, User, Appointment } from "@/@types";
 import { LocalStorage } from "@/infra";
 import axios from "axios";
 
@@ -41,9 +41,9 @@ export class BarberServices {
     }).then(response => response.data);
   }
 
-  async createHaircut(barberShopId: string, newHaircut: { name: string, duration: number }): Promise<Haircut> {
+  async createHaircut(newHaircut: { name: string, duration: number}): Promise<Haircut> {
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
-    return await axios.post<Haircut>(`/api/barber/barber-shop/${barberShopId}/haircuts`, newHaircut, {
+    return await axios.post<Haircut>(`/api/barber/barber-shop/1/haircuts`, newHaircut, {
       headers: {
         Authorization: `Bearer ${openAccessToken}`
       }
@@ -74,6 +74,23 @@ export class BarberServices {
     }).then(response => ({
       haircuts: response.data.haircuts,
       total: response.data.total
+    }));
+  }
+  async getAppointments( page: number, limit: number, search?: string): Promise<{ futureAppointments: Appointment[], pastAppointments: Appointment[], totalFuture: number, totalPast: number }> {
+    const { openAccessToken } = await this.localStorage.get<User>('userProfile');
+    return await axios.get<{ futureAppointments: Appointment[], pastAppointments: Appointment[], totalFuture: number, totalPast: number }>(
+      `/api/barber/barber-shop//appointments`,
+      {
+        params: { page, limit, search },
+        headers: {
+          Authorization: `Bearer ${openAccessToken}`,
+        },
+      }
+    ).then(response => ({
+      futureAppointments: response.data.futureAppointments,
+      pastAppointments: response.data.pastAppointments,
+      totalFuture: response.data.totalFuture,
+      totalPast: response.data.totalPast,
     }));
   }
 }

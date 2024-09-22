@@ -1,4 +1,4 @@
-import { ClientColumn, User } from "@/@types";
+import { ClientColumn, Haircut, User } from "@/@types";
 import { ClientFormValues } from "@/app/(protected)/dashboard/[id]/components/client-form";
 import { LocalStorage } from "@/infra";
 import axios from "axios";
@@ -49,6 +49,15 @@ export class ManagerService {
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
 
     return await axios.patch(`/api/manager/barber/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${openAccessToken}`
+      }
+    }).then(response => response.data)
+  }
+  async getHaircutById(id: string): Promise<Haircut>{
+    const { openAccessToken } = await this.localStorage.get<User>('userProfile');
+
+    return await axios.get<Haircut>(`/api/barber/barber-shop/1/haircut/${id}`, {
       headers: {
         Authorization: `Bearer ${openAccessToken}`
       }

@@ -43,7 +43,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }
-export async function GET(req: Request, { params }: { params: { barberShopId: string } }) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = parseInt(searchParams.get('limit') || '10', 10);
@@ -59,7 +59,7 @@ export async function GET(req: Request, { params }: { params: { barberShopId: st
 
     // Verifica se a barbearia existe e pertence ao usuário
     const barberShop = await db.barberShop.findUnique({
-      where: { id: params.barberShopId, userId: decoded.id }
+      where: { id: params.id, userId: decoded.id }
     });
 
     if (!barberShop) {
@@ -69,7 +69,7 @@ export async function GET(req: Request, { params }: { params: { barberShopId: st
     // Busca paginada dos tipos de corte associados à barbearia
     const haircuts = await db.haircut.findMany({
       where: {
-        barberShopId: params.barberShopId
+        barberShopId: params.id
       },
       skip: offset,
       take: limit
@@ -77,7 +77,7 @@ export async function GET(req: Request, { params }: { params: { barberShopId: st
 
     const totalCount = await db.haircut.count({
       where: {
-        barberShopId: params.barberShopId
+        barberShopId: params.id
       }
     });
 

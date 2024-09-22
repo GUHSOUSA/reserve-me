@@ -20,7 +20,7 @@ export function MainNav({
     },
     {
       href: `/barbershop/haircut`,
-      label: 'Tipos de Corte',
+      label: 'Cortes',
       active: pathname === `/barbershop/haircut`,
     },
     {
@@ -37,7 +37,7 @@ export function MainNav({
 
   return (
     <nav
-      className={cn("flex items-center space-x-4 lg:space-x-6", className)}
+      className={cn("flex items-center space-x-4 lg:space-x-6 overflow-x-auto no-scrollbar", className)}
       {...props}
     >
       {routes.map((route) => (
