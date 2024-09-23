@@ -30,7 +30,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     const now = new Date();
 
-    // Busca paginada dos agendamentos futuros com pesquisa
     const futureAppointments = await db.appointment.findMany({
       where: {
         barberShopId: barberShop.id,

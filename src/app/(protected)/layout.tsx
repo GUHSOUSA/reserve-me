@@ -43,13 +43,15 @@ const ProtectedLayout = ({ children }: Props) => {
   }, []);
   return isAuthenticated ? (
     <div className="h-full">
-      <div className="px-4 pt-4 items-center flex justify-between">
+      <div className="px-4 md:pl-60 pt-4 items-center flex justify-between">
         <MobileSidebar />
         {pathname.startsWith("/barbershop") && <MainNav className="mx-6" />}
         <ThemeToggle />
       </div>
+      
       <aside className="hidden md:flex h-full w-56 flex-col fixed inset-y-0">
         <Sidebar />
+        
       </aside>
       <main className="md:pl-60 p-5 md:p-5 h-full">{children}</main>
     </div>
