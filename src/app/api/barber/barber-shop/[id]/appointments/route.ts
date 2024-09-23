@@ -33,7 +33,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     // Busca paginada dos agendamentos futuros com pesquisa
     const futureAppointments = await db.appointment.findMany({
       where: {
-        barberShopId: params.id,
+        barberShopId: barberShop.id,
         appointmentTime: {
           gte: now, // Agendamentos futuros
         },

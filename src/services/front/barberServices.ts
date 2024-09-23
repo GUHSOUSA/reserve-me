@@ -143,7 +143,7 @@ export class BarberServices {
   async getAppointments( page: number, limit: number, search?: string): Promise<{ futureAppointments: Appointment[], pastAppointments: Appointment[], totalFuture: number, totalPast: number }> {
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
     return await axios.get<{ futureAppointments: Appointment[], pastAppointments: Appointment[], totalFuture: number, totalPast: number }>(
-      `/api/barber/barber-shop//appointments`,
+      `/api/barber/barber-shop/1/appointments`,
       {
         params: { page, limit, search },
         headers: {
