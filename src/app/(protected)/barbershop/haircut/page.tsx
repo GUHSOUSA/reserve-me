@@ -10,7 +10,7 @@ import { Haircut } from "@/@types"; // Tipagem para cortes de cabelo
 import { BarberServices } from "@/services/front/barberServices";
 import { LocalStorage } from "@/infra";
 import { Loader } from "@/components/loader";
-import { columns } from "./components/haircut-columns";
+import { haircutColumns } from "./components/haircut-columns"; // Nome mais descritivo
 
 const HaircutPage = () => {
   const [haircuts, setHaircuts] = useState<Haircut[]>([]);
@@ -24,13 +24,16 @@ const HaircutPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    barberServices.getHaircuts("barberShopId", page, limit).then(response => {
-      setHaircuts(response.haircuts);
-      setTotalHaircuts(response.total);
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    barberServices
+      .getHaircuts(page, limit)
+      .then((response) => {
+        setHaircuts(response.haircuts);
+        setTotalHaircuts(response.total);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, [page, limit]);
 
   const totalPages = Math.ceil(totalHaircuts / limit);
@@ -58,7 +61,10 @@ const HaircutPage = () => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Cortes de Cabelo (${totalHaircuts})`} description="Gerenciamento de cortes de cabelo" />
+        <Heading
+          title={`Cortes de Cabelo (${totalHaircuts})`}
+          description="Gerenciamento de cortes de cabelo"
+        />
         <Button onClick={() => router.push(`/barbershop/haircut/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Adicionar novo
         </Button>
@@ -66,7 +72,7 @@ const HaircutPage = () => {
       <Separator />
       <DataTable
         searchKey="name"
-        columns={columns}
+        columns={haircutColumns} // Usando nome mais descritivo
         data={haircuts}
         total={totalHaircuts}
         page={page}
@@ -84,4 +90,5 @@ const HaircutPage = () => {
     </>
   );
 };
+
 export default HaircutPage;

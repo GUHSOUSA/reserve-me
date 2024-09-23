@@ -67,7 +67,6 @@ const AppointmentBarberPage = ({ params }: { params: { cutId: string, subId: str
           clientId: "cliente@example.com",
         });
       } catch (error) {
-        console.error("Erro ao criar o agendamento", error);
       }
     }
   };

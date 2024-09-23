@@ -1,8 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Haircut } from "@/@types";
-import { CellAction } from "./cell-action";
+import { HaircutActions } from "./cell-action"; // Nome mais descritivo para o componente de ações
 
-export const columns: ColumnDef<Haircut>[] = [
+export const haircutColumns: ColumnDef<Haircut>[] = [
   {
     accessorKey: "name",
     header: "Nome do Corte",
@@ -12,7 +12,11 @@ export const columns: ColumnDef<Haircut>[] = [
     header: "Duração (min)",
   },
   {
+    accessorKey: "price",
+    header: "Preço",
+  },
+  {
     id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />, // Reutilizando o componente de ações
+    cell: ({ row }) => <HaircutActions data={row.original} />, // Nome mais descritivo
   },
 ];

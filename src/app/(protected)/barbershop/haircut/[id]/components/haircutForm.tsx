@@ -39,12 +39,14 @@ export const HaircutForm: React.FC<HaircutFormProps> = ({ initialData }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  
   const title = initialData ? "Editar Corte" : "Criar Corte";
   const description = initialData
     ? "Editar detalhes do corte de cabelo."
     : "Adicionar um novo corte";
   const toastMessage = initialData ? "Corte atualizado." : "Corte criado.";
   const action = initialData ? "Salvar alterações" : "Criar";
+  
   const haircutId = Array.isArray(params.id) ? params.id[0] : params.id;
   const localStorage = new LocalStorage();
   const barberServices = new BarberServices(localStorage);
@@ -53,7 +55,6 @@ export const HaircutForm: React.FC<HaircutFormProps> = ({ initialData }) => {
     ? {
         name: initialData.name || "",
         duration: parseInt(String(initialData?.duration)),
-
       }
     : {
         name: "",
@@ -69,7 +70,7 @@ export const HaircutForm: React.FC<HaircutFormProps> = ({ initialData }) => {
     try {
       setLoading(true);
       if (initialData) {
-        // await barberServices.updateHaircut(haircutId, data);
+        await barberServices.updateHaircut(haircutId, data);
       } else {
         await barberServices.createHaircut(data);
       }
@@ -77,7 +78,7 @@ export const HaircutForm: React.FC<HaircutFormProps> = ({ initialData }) => {
       router.push(`/barbershop/haircut`);
       toast.success(toastMessage);
     } catch (error: any) {
-      toast.error("Something went wrong.");
+      toast.error("Algo deu errado");
     } finally {
       setLoading(false);
     }
@@ -86,12 +87,12 @@ export const HaircutForm: React.FC<HaircutFormProps> = ({ initialData }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      // await barberServices.deleteHaircut(haircutId);
+      await barberServices.deleteHaircut(haircutId);
       router.refresh();
       router.push(`/barbershop/haircut`);
       toast.success("Corte deletado");
     } catch (error: any) {
-      toast.error("Something went wrong.");
+      toast.error("Algo deu errado");
     } finally {
       setLoading(false);
       setOpen(false);

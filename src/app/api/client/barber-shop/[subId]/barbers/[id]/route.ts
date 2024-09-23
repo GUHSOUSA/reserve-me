@@ -2,15 +2,12 @@ import { NextResponse } from "next/server";
 import db from "@/lib/db";
 import { parseISO, addMinutes, isWithinInterval, set, format, isAfter, isBefore } from "date-fns";
 export async function GET(req: Request, { params }: { params: { id: string } }) {
-  console.log('=== Start getAvailability ===');
 
   const { searchParams } = new URL(req.url);
   const date = searchParams.get('date');
   const haircutId = searchParams.get('haircutId');
-  console.log('Request data:', { date, haircutId });
 
   if (!date || !haircutId) {
-    console.log('Missing required fields');
     return NextResponse.json({ error: 'A data e o tipo de corte são obrigatórios' }, { status: 400 });
   }
 
@@ -21,10 +18,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     });
 
     if (!barber) {
-      console.log('Barber not found:', params.id);
       return NextResponse.json({ error: 'Barbeiro não encontrado' }, { status: 404 });
     }
-    console.log('Barber found:', barber);
 
     // Verifica o tipo de corte e sua duração
     const haircut = await db.haircut.findUnique({
@@ -32,17 +27,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     });
 
     if (!haircut) {
-      console.log('Haircut not found:', haircutId);
       return NextResponse.json({ error: 'Tipo de corte não encontrado' }, { status: 404 });
     }
-    console.log('Haircut found:', haircut);
 
     const haircutDuration = haircut.duration;
     const startHour = 9;
     const endHour = 17;
     const intervalMinutes = 30;
     const selectedDate = parseISO(date);
-    console.log('Selected date:', selectedDate);
 
     // Gera a lista de horários possíveis dentro do expediente
     let availableTimes: Date[] = [];
@@ -52,7 +44,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         availableTimes.push(time);
       }
     }
-    console.log('Generated available times:', availableTimes);
 
     // Busca agendamentos existentes
     const appointments = await db.appointment.findMany({
@@ -68,7 +59,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         duration: true,
       }
     });
-    console.log('Existing appointments:', appointments);
 
     // Verifica conflitos de horário
     const continuousAvailableTimes: Date[] = [];
@@ -92,13 +82,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       }
     }
 
-    console.log('Available times:', continuousAvailableTimes);
     const formattedTimes = continuousAvailableTimes.map(time => format(time, 'HH:mm'));
 
     return NextResponse.json({ availableTimes: formattedTimes }, { status: 200 });
 
   } catch (error) {
-    console.error('Error in getAvailability:', error);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }

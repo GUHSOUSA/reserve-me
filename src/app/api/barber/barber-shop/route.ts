@@ -72,7 +72,6 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ barberShop: newBarberShop }, { status: 201 });
   } catch (error) {
-    console.log(error);
     
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }

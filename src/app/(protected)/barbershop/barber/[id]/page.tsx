@@ -2,28 +2,29 @@
 import { useEffect, useState } from "react";
 import { LocalStorage } from "@/infra";
 import { ManagerService } from "@/services/front/managerServices";
-import { ClientColumn, Haircut } from "@/@types";
+import { Barber } from "@/@types";
 import { Loader } from "@/components/loader";
-import { BarberForm } from "./components/haircutForm";
+import { BarberForm } from "./components/barberForm";
+import { BarberServices } from "@/services/front/barberServices";
 
-const HairCutPage = ({ params }: { params: { id: string } }) => {
-  const [hairCut, sethairCut] = useState<Haircut | null>(null); 
+const BarberPage = ({ params }: { params: { id: string } }) => {
+  const [barber, setbarber] = useState<Barber | null>(null); 
   const [loading, setLoading] = useState(true); 
   const localStorage = new LocalStorage();
-  const managerServices = new ManagerService(localStorage);
+  const barberServices = new BarberServices(localStorage);
 
   useEffect(() => {
-    const fetchhairCut = async () => {
+    const fetchbarber = async () => {
       try {
-        const response = await managerServices.getHaircutById(params.id);
-        sethairCut(response);
+        const response = await barberServices.getBarberById(params.id);
+        setbarber(response);
       } catch (err) {
-        sethairCut(null);
+        setbarber(null);
       } finally {
         setLoading(false);
       }
     };
-    fetchhairCut();
+    fetchbarber();
   }, [params.id]);
   if (loading) {
     return (
@@ -36,10 +37,10 @@ const HairCutPage = ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex-col">
       <div className="space-y-4">
-        <BarberForm initialData={hairCut} />
+        <BarberForm initialData={barber} />
       </div>
     </div>
   );
 };
 
-export default HairCutPage;
+export default BarberPage;

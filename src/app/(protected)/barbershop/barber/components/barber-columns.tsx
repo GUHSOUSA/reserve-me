@@ -1,8 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { CellAction } from "./cell-action"; // Ações comuns
 import { Barber } from "@/@types";
+import { BarberActions } from "./cell-action"; // Nome mais descritivo para o componente de ações
 
-export const columns: ColumnDef<Barber>[] = [
+export const barberColumns: ColumnDef<Barber>[] = [
   {
     accessorKey: "name",
     header: "Nome",
@@ -17,6 +17,6 @@ export const columns: ColumnDef<Barber>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />, // Reutilizando o componente de ações
+    cell: ({ row }) => <BarberActions data={row.original} />, // Nome mais descritivo
   },
 ];

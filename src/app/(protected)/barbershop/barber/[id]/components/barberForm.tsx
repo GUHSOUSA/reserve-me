@@ -19,18 +19,19 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import { AlertModal } from "@/components/modals/alert-modal";
-import { Haircut } from "@/@types";
+import { Barber, Haircut } from "@/@types";
 import { BarberServices } from "@/services/front/barberServices";
 import { LocalStorage } from "@/infra";
 
 const formSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
+  email: z.string().min(1, "Nome é obrigatório"),
 });
 
-export type HaircutFormValues = z.infer<typeof formSchema>;
+export type BarberFormValues = z.infer<typeof formSchema>;
 
 interface HaircutFormProps {
-  initialData: Haircut | null;
+  initialData: Barber | null;
 }
 
 export const BarberForm: React.FC<HaircutFormProps> = ({ initialData }) => {
@@ -51,27 +52,28 @@ export const BarberForm: React.FC<HaircutFormProps> = ({ initialData }) => {
   const defaultValues = initialData
     ? {
         name: initialData.name || "",
+        email: initialData.email || "",
       }
     : {
         name: "",
-        price: 0,
+        email: ""
       };
 
-  const form = useForm<HaircutFormValues>({
+  const form = useForm<BarberFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
 
-  const onSubmit = async (data: HaircutFormValues) => {
+  const onSubmit = async (data: BarberFormValues) => {
     try {
       setLoading(true);
       if (initialData) {
-        // await barberServices.updateHaircut(haircutId, data);
+         await barberServices.updateBarber(haircutId, data);
       } else {
-        // await barberServices.createHaircut(data);
+        await barberServices.createBarber(data);
       }
       router.refresh();
-      router.push(`/haircuts`);
+      router.push(`/barbershop/barber`);
       toast.success(toastMessage);
     } catch (error: any) {
       toast.error("Something went wrong.");
@@ -83,9 +85,9 @@ export const BarberForm: React.FC<HaircutFormProps> = ({ initialData }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      // await barberServices.deleteHaircut(haircutId);
+      await barberServices.deleteBarber(haircutId);
       router.refresh();
-      router.push(`/haircuts`);
+      router.push(`/barbershop/barber`);
       toast.success("Corte deletado");
     } catch (error: any) {
       toast.error("Something went wrong.");
@@ -126,6 +128,23 @@ export const BarberForm: React.FC<HaircutFormProps> = ({ initialData }) => {
             <FormField
               control={form.control}
               name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Nome do corte"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nome</FormLabel>

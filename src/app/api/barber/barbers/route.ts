@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request) {
   const token = req.headers.get('Authorization')?.split(' ')[1];
   if (!token) {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
@@ -17,7 +17,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: 'Nome e Email são obrigatórios' }, { status: 400 });
     }
     const barberShop = await db.barberShop.findUnique({
-      where: { id: params.id, userId: decoded.id }
+      where: {  userId: decoded.id }
     });
 
     if (!barberShop) {
@@ -28,18 +28,17 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         name,
         email,
         BarberShop: {
-          connect: { id: params.id }
+          connect: { id: barberShop.id }
         }
       }
     });
     return NextResponse.json(newBarber, { status: 201 });
   } catch (error) {
-    console.log(error);
     
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = parseInt(searchParams.get('limit') || '10', 10);
@@ -55,7 +54,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     // Verifica se a barbearia existe e pertence ao usuário
     const barberShop = await db.barberShop.findUnique({
-      where: { id: params.id, userId: decoded.id }
+      where: { userId: decoded.id }
     });
 
     if (!barberShop) {
@@ -67,7 +66,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       where: {
         BarberShop: {
           some: {
-            id: params.id
+            id: barberShop.id
           }
         }
       },
@@ -79,7 +78,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       where: {
         BarberShop: {
           some: {
-            id: params.id
+            id: barberShop.id
           }
         }
       }

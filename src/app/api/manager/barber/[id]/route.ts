@@ -110,7 +110,6 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     return NextResponse.json({ status: 200 });
   } catch (err: any) {
-    console.error('Error:', err);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }

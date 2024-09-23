@@ -20,18 +20,17 @@ const ProtectedLayout = ({ children }: Props) => {
   const localStorage = new LocalStorage();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   useEffect(() => {
     const checkUser = async () => {
-  
       try {
-        const userProfile = await localStorage.get<User>("userProfile")
+        const userProfile = await localStorage.get<User>("userProfile");
         if (!userProfile || !userProfile.openAccessToken) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
-          if (isTokenExpired(userProfile.openAccessToken)) {
-          router.push('/login');
+        if (isTokenExpired(userProfile.openAccessToken)) {
+          router.push("/login");
         } else {
           setIsAuthenticated(true);
         }
@@ -42,22 +41,22 @@ const ProtectedLayout = ({ children }: Props) => {
     };
     checkUser();
   }, []);
-  return isAuthenticated ? <div className="h-full">
-  <div className="px-4 pt-4 items-center flex justify-between">
-    <MobileSidebar />
-    { pathname.startsWith("/barbershop") &&
-    <MainNav className="mx-6" />
-}
-    <ThemeToggle />
-  </div>
-  <aside className="hidden md:flex h-full w-56 flex-col fixed inset-y-0">
-    <Sidebar />
-  </aside>
-  <main className="md:pl-60 p-5 md:p-5 h-full">
-    {children}
-  </main>
-</div> : <div className="flex h-full w-full items-center justify-center">
-  <Loader />
-</div>;
+  return isAuthenticated ? (
+    <div className="h-full">
+      <div className="px-4 pt-4 items-center flex justify-between">
+        <MobileSidebar />
+        {pathname.startsWith("/barbershop") && <MainNav className="mx-6" />}
+        <ThemeToggle />
+      </div>
+      <aside className="hidden md:flex h-full w-56 flex-col fixed inset-y-0">
+        <Sidebar />
+      </aside>
+      <main className="md:pl-60 p-5 md:p-5 h-full">{children}</main>
+    </div>
+  ) : (
+    <div className="flex h-full w-full items-center justify-center">
+      <Loader />
+    </div>
+  );
 };
-export default ProtectedLayout; 
+export default ProtectedLayout;

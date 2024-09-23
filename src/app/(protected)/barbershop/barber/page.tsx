@@ -10,7 +10,7 @@ import { Barber } from "@/@types"; // Tipagem para barbeiros
 import { BarberServices } from "@/services/front/barberServices";
 import { LocalStorage } from "@/infra";
 import { Loader } from "@/components/loader";
-import { columns } from "./components/barber-columns";
+import { barberColumns } from "./components/barber-columns"; // Nome mais descritivo
 
 const BarberPage = () => {
   const [barbers, setBarbers] = useState<Barber[]>([]);
@@ -24,13 +24,16 @@ const BarberPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    barberServices.getBarbers("barberShopId", page, limit).then(response => {
-      setBarbers(response.barbers);
-      setTotalBarbers(response.total);
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    barberServices
+      .getBarbers(page, limit)
+      .then((response) => {
+        setBarbers(response.barbers);
+        setTotalBarbers(response.total);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, [page, limit]);
 
   const totalPages = Math.ceil(totalBarbers / limit);
@@ -58,7 +61,10 @@ const BarberPage = () => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={`Barbeiros (${totalBarbers})`} description="Gerenciamento de barbeiros" />
+        <Heading
+          title={`Barbeiros (${totalBarbers})`}
+          description="Gerenciamento de barbeiros"
+        />
         <Button onClick={() => router.push(`/barbershop/barber/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Adicionar novo
         </Button>
@@ -66,7 +72,7 @@ const BarberPage = () => {
       <Separator />
       <DataTable
         searchKey="name"
-        columns={columns}
+        columns={barberColumns} // Usando nome mais descritivo
         data={barbers}
         total={totalBarbers}
         page={page}
@@ -84,4 +90,5 @@ const BarberPage = () => {
     </>
   );
 };
+
 export default BarberPage;

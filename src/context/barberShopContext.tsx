@@ -43,7 +43,6 @@ export const BarberShopContextProvider = ({ children, subId }: BarberShopContext
         setBarbers(barbers);
         setHaircuts(haircuts);
       } catch (error) {
-        console.error("Erro ao buscar dados da barbearia", error);
       }
     };
 
