@@ -3,10 +3,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BarberShopContext } from "@/context/barberShopContext";
+import { useRouter } from "next/navigation";
 import { useContext } from "react";
 export const Header = () => {
   const { barberShop } = useContext(BarberShopContext);
-
+  const route = useRouter();
   return (
     <header className="stycky top-0 h-20 flex items-center justify-between border-b-2 text-neutral-400 lg:z-50 pr-2">
       <div className="flex flex-row gap-4 items-center p-2">
@@ -37,7 +38,7 @@ export const Header = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Voltar</AlertDialogCancel>
-            <AlertDialogAction>Confirmar</AlertDialogAction>
+            <AlertDialogAction onClick={()=> route.push("/agendamentos")}>Confirmar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

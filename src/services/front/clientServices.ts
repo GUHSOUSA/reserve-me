@@ -5,7 +5,6 @@ import axios from "axios";
 export class ClientServices {
   constructor(private readonly localStorage: LocalStorage) {}
 
-  // Novo método para pegar barberShop, haircuts e barbers em uma só requisição
   async getBarberShopData(subId: string): Promise<{ barberShop: BarberShop, haircuts: Haircut[], barbers: Barber[] }> {
     return await axios.get<{ barberShop: BarberShop, haircuts: Haircut[], barbers: Barber[] }>(
       `/api/client/barber-shop/${subId}`
@@ -33,6 +32,20 @@ export class ClientServices {
       }
     })
     .then(response => response.data.availableTimes)
+    .catch(error => {
+      throw error;
+    });
+  }
+  async getClientAppointmentsByEmail( page: number = 1, limit: number = 10): Promise<{ appointments: Appointment[], total: number }> {
+    const email = await this.localStorage.get<String>('userEmail');
+    return await axios.get<{ appointments: Appointment[], total: number }>(`/api/client/history`, {
+      params: {
+        email,
+        page,
+        limit
+      }
+    })
+    .then(response => response.data)
     .catch(error => {
       throw error;
     });
