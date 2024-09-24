@@ -1,6 +1,6 @@
 "use client"
 import { ColumnDef } from "@tanstack/react-table"
-import { CellAction } from "./cell-action"
+import { CellAction } from "./cell-action-manager"
 import { ClientColumn } from "@/@types"
 export const columns: ColumnDef<ClientColumn>[] = [
   {
@@ -13,7 +13,7 @@ export const columns: ColumnDef<ClientColumn>[] = [
   },
   {
     accessorKey: "role", // Nome
-    header: "Nome",
+    header: "Role",
   },
   {
     accessorKey: "barberShop.active", // Atividade da barbearia

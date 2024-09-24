@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/ui/data-table";
 import { useRouter } from "next/navigation";
-import { columns } from "./columns";
+import { columns } from "./columns-manager";
 import { ClientColumn } from "@/@types";
 import { LocalStorage } from "@/infra";
 import { ManagerService } from "@/services/front/managerServices";

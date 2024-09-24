@@ -1,4 +1,4 @@
-import { BarberShop, Barber, Haircut, User, Appointment } from "@/@types";
+import { BarberShop, Barber, Haircut, User, Appointment, Client } from "@/@types";
 import { BarberFormValues } from "@/app/(protected)/barbershop/barber/[id]/components/barberForm";
 import { HaircutFormValues } from "@/app/(protected)/barbershop/haircut/[id]/components/haircutForm";
 import { LocalStorage } from "@/infra";
@@ -57,6 +57,19 @@ export class BarberServices {
 
   // rotas para pegar barbeiros e cortes de cabelo
 
+  async getClients(page: number, limit: number): Promise<{ clients: Client[], total: number }> {
+    const { openAccessToken } = await this.localStorage.get<User>('userProfile');
+    return await axios.get<{ clients: Client[], total: number }>(`/api/barber/clients`, {
+      params: { page, limit },
+      headers: {
+        Authorization: `Bearer ${openAccessToken}`
+      }
+    }).then(response => ({
+      clients: response.data.clients,
+      total: response.data.total
+    }));
+}
+ 
   async getBarbers( page: number, limit: number): Promise<{ barbers: Barber[], total: number }> {
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
     return await axios.get<{ barbers: Barber[], total: number }>(`/api/barber/barbers`, {
@@ -138,12 +151,10 @@ export class BarberServices {
       }
     })
   }
-  // rotas para pegar agendamentos
-
-  async getAppointments( page: number, limit: number, search?: string): Promise<{ futureAppointments: Appointment[], pastAppointments: Appointment[], totalFuture: number, totalPast: number }> {
+  async getAppointments( page: number, limit: number, search?: string): Promise<{ futureAppointments: Appointment[], totalFuture: number}> {
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
-    return await axios.get<{ futureAppointments: Appointment[], pastAppointments: Appointment[], totalFuture: number, totalPast: number }>(
-      `/api/barber/barber-shop/1/appointments`,
+    return await axios.get<{ futureAppointments: Appointment[], totalFuture: number }>(
+      `/api/barber/appointments/future`,
       {
         params: { page, limit, search },
         headers: {
@@ -152,9 +163,7 @@ export class BarberServices {
       }
     ).then(response => ({
       futureAppointments: response.data.futureAppointments,
-      pastAppointments: response.data.pastAppointments,
       totalFuture: response.data.totalFuture,
-      totalPast: response.data.totalPast,
     }));
   }
 }

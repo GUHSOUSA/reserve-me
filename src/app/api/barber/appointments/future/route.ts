@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = parseInt(searchParams.get('limit') || '10', 10);
@@ -18,8 +18,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { role: string, id: string };
-
-    // Verifica se a barbearia existe e pertence ao usuário
     const barberShop = await db.barberShop.findUnique({
       where: { userId: decoded.id }
     });
@@ -27,14 +25,12 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     if (!barberShop) {
       return NextResponse.json({ error: 'Barbearia não encontrada' }, { status: 404 });
     }
-
     const now = new Date();
-
     const futureAppointments = await db.appointment.findMany({
       where: {
         barberShopId: barberShop.id,
         appointmentTime: {
-          gte: now, // Agendamentos futuros
+          gte: now,
         },
         OR: [
           { barber: { name: { contains: searchQuery, mode: 'insensitive' } } },
@@ -42,8 +38,21 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         ]
       },
       include: {
-        haircut: true,
-        barber: true,
+        client: {
+          select: {
+            name: true, // Selecionando apenas o nome do cliente
+          }
+        },
+        haircut: {
+          select: {
+            name: true, // Selecionando apenas o nome do corte
+          }
+        },
+        barber: {
+          select: {
+            name: true, // Selecionando apenas o nome do barbeiro
+          }
+        },
       },
       skip: offset,
       take: limit,
@@ -51,33 +60,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         appointmentTime: 'asc',
       },
     });
-
-    // Busca paginada dos agendamentos concluídos (histórico)
-    const pastAppointments = await db.appointment.findMany({
-      where: {
-        barberShopId: params.id,
-        appointmentTime: {
-          lt: now, // Agendamentos passados
-        },
-        OR: [
-          { barber: { name: { contains: searchQuery, mode: 'insensitive' } } },
-          { haircut: { name: { contains: searchQuery, mode: 'insensitive' } } },
-        ]
-      },
-      include: {
-        haircut: true,
-        barber: true,
-      },
-      skip: offset,
-      take: limit,
-      orderBy: {
-        appointmentTime: 'desc',
-      },
-    });
-
     const totalCountFuture = await db.appointment.count({
       where: {
-        barberShopId: params.id,
+        barberShopId: barberShop.id,
         appointmentTime: {
           gte: now,
         },
@@ -87,25 +72,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         ]
       }
     });
-
-    const totalCountPast = await db.appointment.count({
-      where: {
-        barberShopId: params.id,
-        appointmentTime: {
-          lt: now,
-        },
-        OR: [
-          { barber: { name: { contains: searchQuery, mode: 'insensitive' } } },
-          { haircut: { name: { contains: searchQuery, mode: 'insensitive' } } },
-        ]
-      }
-    });
-
     return NextResponse.json({ 
       futureAppointments, 
-      pastAppointments,
       totalFuture: totalCountFuture, 
-      totalPast: totalCountPast, 
       page, 
       limit 
     }, { status: 200 });

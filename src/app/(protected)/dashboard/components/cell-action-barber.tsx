@@ -10,9 +10,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ClientColumn } from "@/@types";
+import { Appointment, ClientColumn } from "@/@types";
 interface CellActionProps {
-  data: ClientColumn;
+  data: Appointment;
 }
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();

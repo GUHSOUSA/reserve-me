@@ -17,9 +17,11 @@ export async function POST(req: Request) {
       include: { BarberShop: true }
     });
 
-    if (!barber) {
-      return NextResponse.json({ error: 'Barbeiro não encontrado' }, { status: 404 });
+    if (!barber || barber.BarberShop.length === 0) {
+      return NextResponse.json({ error: 'Barbeiro não encontrado ou não associado a uma barbearia' }, { status: 404 });
     }
+
+    const barberShopId = barber.BarberShop[0].id;
 
     // Verifica o tipo de corte e sua duração
     const haircut = await db.haircut.findUnique({
@@ -79,6 +81,28 @@ export async function POST(req: Request) {
       });
     }
 
+    // Verifica se o cliente já está associado à barbearia
+    const clientExistsInBarberShop = await db.barberShop.findFirst({
+      where: {
+        id: barberShopId,
+        clients: {
+          some: { id: client.id }
+        }
+      }
+    });
+
+    // Se o cliente não estiver associado, o associa à barbearia
+    if (!clientExistsInBarberShop) {
+      await db.barberShop.update({
+        where: { id: barberShopId },
+        data: {
+          clients: {
+            connect: { id: client.id } // Conecta o cliente à barbearia
+          }
+        }
+      });
+    }
+
     // Criação do agendamento
     const appointment = await db.appointment.create({
       data: {
@@ -87,7 +111,7 @@ export async function POST(req: Request) {
         clientId: client.id,
         barberId: parseInt(barberId),
         haircutId,
-        barberShopId: barber.BarberShop[0].id
+        barberShopId
       }
     });
 
@@ -97,3 +121,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Erro interno ao criar o agendamento', details: error.message || error }, { status: 500 });
   }
 }
+

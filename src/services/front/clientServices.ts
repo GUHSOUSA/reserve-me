@@ -16,7 +16,7 @@ export class ClientServices {
     });
   }
 
-  async createAppointmentWithSubId(appointmentData: { barberId: number, haircutId: string, appointmentTime: string, clientId: string }): Promise<void> {
+  async createAppointmentWithSubId(appointmentData: { barberId: number, haircutId: string, appointmentTime: string, clientId: string, clientName: string }): Promise<void> {
     return await axios.post("/api/client/appointment", appointmentData)
       .then(response => response.data)
       .catch(error => {

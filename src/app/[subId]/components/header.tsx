@@ -8,7 +8,7 @@ export const Header = () => {
   const { barberShop } = useContext(BarberShopContext);
 
   return (
-    <header className="stycky top-0 h-20 bg-white flex items-center justify-between border-b-2 text-neutral-400 lg:z-50 pr-2">
+    <header className="stycky top-0 h-20 flex items-center justify-between border-b-2 text-neutral-400 lg:z-50 pr-2">
       <div className="flex flex-row gap-4 items-center p-2">
         <Avatar>
           <AvatarImage src="https://marketplace.canva.com/EAE_pF9jQO8/1/0/1600w/canva-logotipo-circular-vintage-floral-terracota-para-estética-e-beleza-isR0zH2IodY.jpg" />
