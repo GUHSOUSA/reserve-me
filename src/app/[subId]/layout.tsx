@@ -1,3 +1,4 @@
+"use client";
 import { BarberShopContextProvider } from "@/context/barberShopContext";
 import Header from "./components/header";
 export default function RootLayout({
@@ -9,6 +10,7 @@ export default function RootLayout({
 }) {
   return (
     <BarberShopContextProvider subId={params.subId}>
+       <Header />
       {children}
     </BarberShopContextProvider>
   );

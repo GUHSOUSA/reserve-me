@@ -12,7 +12,6 @@ const HaircutsPage = () => {
   }
   return (
     <div>
-      <Header />
       {haircuts.map((haircut) => (
         <HaircutList haircut={haircut} barberShopId={barberShop.subId} />
       ))}

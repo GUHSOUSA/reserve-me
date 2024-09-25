@@ -37,10 +37,11 @@ export class ClientServices {
     });
   }
   async getClientAppointmentsByEmail( page: number = 1, limit: number = 10): Promise<{ appointments: Appointment[], total: number }> {
-    const email = await this.localStorage.get<String>('userEmail');
+    const user = await this.localStorage.get<{email: string, name: string}>('clientInfo');
+    console.log(user)
     return await axios.get<{ appointments: Appointment[], total: number }>(`/api/client/history`, {
       params: {
-        email,
+        email: user?.email,
         page,
         limit
       }
@@ -50,5 +51,17 @@ export class ClientServices {
       throw error;
     });
   }
-  
+  async deleteAppointmentByEmail( appointmentId: string): Promise<void>{
+    const user = await this.localStorage.get<{email: string, name: string}>('clientInfo');
+
+    await axios.delete('/api/client/history', {
+      params: {
+        email: user.email,
+        appointmentId
+      }
+    }).then(response => response.data)
+    .catch(error => {
+      throw error;
+    })
+  }
 }
