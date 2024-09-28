@@ -1,5 +1,5 @@
 import { Barber, ClientColumn, Haircut, User } from "@/@types";
-import { ClientFormValues } from "@/app/(protected)/dashboard/[id]/components/client-form";
+import { ClientFormValues, ClientFormValuesOptionalPassword } from "@/app/(protected)/dashboard/[id]/components/client-form";
 import { LocalStorage } from "@/infra";
 import axios from "axios";
 
@@ -45,7 +45,7 @@ export class ManagerService {
       }
     }).then(response => response.data)
   }
-  async updateBarber(id: string, data: ClientFormValues): Promise<void>{
+  async updateBarber(id: string, data: ClientFormValuesOptionalPassword): Promise<void>{
     const { openAccessToken } = await this.localStorage.get<User>('userProfile');
 
     return await axios.patch(`/api/manager/barber/${id}`, data, {

@@ -95,7 +95,7 @@ model BarberShop {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt // Corrigido
 
-  User User? @relation(fields: [userId], references: [id])
+  User User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum PaymentType {

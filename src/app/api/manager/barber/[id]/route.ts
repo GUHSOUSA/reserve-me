@@ -62,12 +62,14 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   const { name, email, active, role, password } = await req.json();
+  
 
   // Construção dinâmica dos dados que serão atualizados
   let updatedUserData: { name?: string; email?: string; password?: string; role?: UserRole } = { name, email, role };
   
   // Hash da senha se fornecida
   if (password) {
+    console.log("senha",password)
     const hashedPassword = await bcrypt.hash(password, 10);
     updatedUserData.password = hashedPassword;
   }

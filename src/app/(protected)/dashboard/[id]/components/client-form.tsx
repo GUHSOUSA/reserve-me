@@ -44,7 +44,9 @@ const formSchema = z.object({
 });
 
 export type ClientFormValues = z.infer<typeof formSchema>;
-
+export type ClientFormValuesOptionalPassword = Omit<ClientFormValues, 'password'> & {
+  password?: string; // Deixa a senha opcional
+};
 interface ClientFormProps {
   initialData: ClientColumn | null;
 }
@@ -63,6 +65,8 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
   const userId = Array.isArray(params.id) ? params.id[0] : params.id;
   const localStorage = new LocalStorage();
   const managerServices = new ManagerService(localStorage);
+  const [isPasswordChangeEnabled, setIsPasswordChangeEnabled] = useState(false);
+  const [passwordChanged, setPasswordChanged] = useState(false);
 
   // Adicionando a lógica para definir valores padrão
   const defaultValues = initialData
@@ -85,12 +89,17 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
     resolver: zodResolver(formSchema),
     defaultValues,
   });
+  
 
   const onSubmit = async (data: ClientFormValues) => {
+    const requestData: ClientFormValuesOptionalPassword = {
+      ...data,
+      password: passwordChanged ? data.password : undefined, // Defina a senha apenas se foi alterada
+    };
     try {
       setLoading(true);
       if (initialData) {
-        await managerServices.updateBarber(userId, data);
+        await managerServices.updateBarber(userId, requestData);
       } else {
         await managerServices.createBarber(data);
       }
@@ -183,18 +192,35 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
               )}
             />
             <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder="Senha" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+  control={form.control}
+  name="password"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Senha</FormLabel>
+      <FormControl>
+        <Input
+          disabled={!isPasswordChangeEnabled || loading}
+          placeholder="Senha"
+          {...field}
+          onChange={(e) => {
+            field.onChange(e);
+            setPasswordChanged(true); // Marca que a senha foi alterada
+          }}
+        />
+      </FormControl>
+      <FormMessage />
+      <Button
+        type="button"
+        onClick={() => setIsPasswordChangeEnabled(!isPasswordChangeEnabled)}
+        disabled={loading}
+        variant="outline"
+        className="mt-2"
+      >
+        {isPasswordChangeEnabled ? 'Cancelar' : 'Alterar Senha'}
+      </Button>
+    </FormItem>
+  )}
+/>
             <FormField
               control={form.control}
               name="role"
